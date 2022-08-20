@@ -1,0 +1,83 @@
+---
+# tasks file for zabbix
+- ansible.builtin.get_url:
+    url: https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-3+ubuntu20.04_all.deb
+    dest: /tmp/zabbix-release_6.0-3+ubuntu20.04_all.deb
+
+- ansible.builtin.apt:
+    deb: /tmp/zabbix-release_6.0-3+ubuntu20.04_all.deb
+
+- ansible.builtin.apt:
+    update_cache: true
+    name:
+      - zabbix-server-mysql
+      - zabbix-frontend-php
+      - zabbix-nginx-conf
+      - zabbix-sql-scripts
+      - zabbix-agent
+
+- community.mysql.mysql_db:
+    name: zabbix
+    login_host: 127.0.0.1
+    state: present
+  notify: "import zabbix database"
+
+- ansible.builtin.stat:
+    path: /usr/local/mysql/zabbix_password
+  register: stat_output
+
+- ansible.builtin.set_fact:
+    zabbix_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+  when: not stat_output.stat.exists
+
+- ansible.builtin.lineinfile:
+    path: /usr/local/mysql/zabbix_password
+    create: true
+    line: "{{ zabbix_password }}"
+  when: not stat_output.stat.exists
+
+- community.mysql.mysql_user:
+    name: zabbix
+    password: "{{ zabbix_password }}"
+    priv: 'zabbix.*:ALL'
+  when: not stat_output.stat.exists
+
+- ansible.builtin.slurp:
+    src: /usr/local/mysql/zabbix_password
+  register: zabbix_password_content
+  when: zabbix_password is undefined
+
+- ansible.builtin.set_fact:
+    zabbix_password: "{{ zabbix_password_content.content | b64decode }}"
+  when: zabbix_password is undefined
+
+- ansible.builtin.template:
+    src: zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    mode: 0600
+    owner: root
+    group: root
+
+- ansible.builtin.lineinfile:
+    path: /etc/zabbix/nginx.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - regex: "^#\\s*listen\\s*8080;"
+      line: "\tlisten\t8080;"
+    - regex: "^#\\s*server_name\\s*example.com;"
+      line: "\tserver_name\texample.com;"
+
+- ansible.builtin.apt:
+    name: apache2
+    state: absent
+
+- ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - zabbix-server
+    - zabbix-agent
+    - nginx
+    - php7.4-fpm

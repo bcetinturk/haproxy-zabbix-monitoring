@@ -1,0 +1,8 @@
+---
+# handlers file for zabbix
+- community.mysql.mysql_db:
+    name: zabbix
+    target: /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz
+    login_host: 127.0.0.1
+    state: import
+  listen: "import zabbix database"

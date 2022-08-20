@@ -29,25 +29,3 @@
       user=root
       password="{{ root_password }}"
   when: not stat_output.stat.exists
- 
-- community.mysql.mysql_db:
-    name: zabbix
-
-- ansible.builtin.stat:
-    path: /usr/local/mysql/zabbix_password
-  register: stat_output
-
-- ansible.builtin.set_fact:
-    zabbix_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
-  when: not stat_output.stat.exists
-
-- ansible.builtin.lineinfile:
-    path: /usr/local/mysql/zabbix_password
-    create: true
-    line: "{{ zabbix_password }}"
-  when: not stat_output.stat.exists
-
-- community.mysql.mysql_user:
-    name: zabbix
-    password: "{{ zabbix_password }}"
-    priv: 'zabbix.*:ALL'

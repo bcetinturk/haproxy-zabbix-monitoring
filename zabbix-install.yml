@@ -3,3 +3,5 @@
   tasks:
     - ansible.builtin.include_role:
         name: mysql
+    - ansible.builtin.include_role:
+        name: zabbix
