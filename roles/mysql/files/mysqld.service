@@ -1,0 +1,11 @@
+[Unit]
+Description=MySQL Server Service
+
+[Service]
+ExecStart=/usr/local/mysql/bin/mysqld_safe --user=mysql
+WorkingDirectory=/usr/local/mysql
+User=mysql
+Group=mysql
+
+[Install]
+WantedBy=multi-user.target

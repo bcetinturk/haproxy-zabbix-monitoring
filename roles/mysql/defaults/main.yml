@@ -1,0 +1,3 @@
+---
+# defaults file for mysql
+mysql_version: mysql-8.0.30-linux-glibc2.12-x86_64

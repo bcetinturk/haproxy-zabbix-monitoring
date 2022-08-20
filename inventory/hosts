@@ -1,0 +1,1 @@
+zabbixbox ansible_host=192.168.18.10 ansible_ssh_private_key_file=.vagrant/machines/zabbix-box/virtualbox/private_key ansible_ssh_user=vagrant

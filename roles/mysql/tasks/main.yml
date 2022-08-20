@@ -1,0 +1,47 @@
+---
+# tasks file for mysql
+- ansible.builtin.group:
+    name: mysql
+
+- ansible.builtin.user:
+    name: mysql
+    group: mysql
+    shell: /bin/false
+
+- ansible.builtin.apt:
+    name: "{{ item }}"
+    update_cache: true
+  loop:
+    - libncurses5
+    - libaio1
+
+- ansible.builtin.get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-8.0/{{ mysql_version }}.tar.xz
+    dest: /tmp/{{ mysql_version }}.tar.xz
+
+- ansible.builtin.unarchive:
+    src: /tmp/{{ mysql_version }}.tar.xz
+    dest: /usr/local
+    remote_src: true
+    creates: "/usr/local{{ mysql_version }}"
+
+- ansible.builtin.file:
+    state: link
+    path: /usr/local/mysql
+    src: /usr/local/{{ mysql_version }}
+
+- ansible.builtin.file:
+    path: /usr/local/{{ mysql_version }}/mysql-files
+    owner: mysql
+    group: mysql
+    mode: 0750
+    state: directory
+
+- ansible.builtin.shell:
+    cmd: "bin/mysqld --initialize --user=mysql > initialize.logs 2>&1"
+    creates: /usr/local/{{ mysql_version }}/initialize.logs
+    chdir: /usr/local/{{ mysql_version }}
+
+- ansible.builtin.copy:
+    dest: /etc/systemd/system/mysqld.service
+    src: mysqld.service
