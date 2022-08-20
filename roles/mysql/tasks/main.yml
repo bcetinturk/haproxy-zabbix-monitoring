@@ -37,6 +37,14 @@
     mode: 0750
     state: directory
 
+- ansible.builtin.file:
+    path: /etc/mysql
+    state: directory
+
+- ansible.builtin.copy:
+    dest: /etc/mysql/my.cnf
+    src: my.cnf
+
 - ansible.builtin.shell:
     cmd: "bin/mysqld --initialize --user=mysql > initialize.logs 2>&1"
     creates: /usr/local/{{ mysql_version }}/initialize.logs
