@@ -23,7 +23,7 @@
     src: /tmp/{{ mysql_version }}.tar.xz
     dest: /usr/local
     remote_src: true
-    creates: "/usr/local{{ mysql_version }}"
+    creates: "/usr/local/{{ mysql_version }}/bin"
 
 - ansible.builtin.file:
     state: link
