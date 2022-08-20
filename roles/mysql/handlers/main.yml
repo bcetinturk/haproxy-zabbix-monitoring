@@ -1,6 +1,6 @@
 ---
 # handlers file for mysql
-- name: Restart apache
+- name: Restart mysqld
   ansible.builtin.systemd:
     state: restarted
     daemon_reload: true

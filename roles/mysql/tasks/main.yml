@@ -56,7 +56,7 @@
     src: mysqld.service
   notify: "restart mysqld"
 
-- name: Restart apache
+- name: Restart mysqld
   ansible.builtin.systemd:
     state: started
     daemon_reload: yes
