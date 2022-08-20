@@ -44,12 +44,23 @@
 - ansible.builtin.copy:
     dest: /etc/mysql/my.cnf
     src: my.cnf
+  notify: "restart mysqld"
 
 - ansible.builtin.shell:
-    cmd: "bin/mysqld --initialize --user=mysql > initialize.logs 2>&1"
+    cmd: "bin/mysqld --initialize-insecure --user=mysql > initialize.logs 2>&1"
     creates: /usr/local/{{ mysql_version }}/initialize.logs
     chdir: /usr/local/{{ mysql_version }}
 
 - ansible.builtin.copy:
     dest: /etc/systemd/system/mysqld.service
     src: mysqld.service
+  notify: "restart mysqld"
+
+- name: Restart apache
+  ansible.builtin.systemd:
+    state: started
+    daemon_reload: yes
+    name: mysqld
+
+- ansible.builtin.include_tasks:
+    file: create-db-and-user.yml
