@@ -20,6 +20,8 @@
     name: zabbix
     login_host: 127.0.0.1
     state: present
+    encoding: utf8mb4
+    collation: utf8mb4_bin
   notify: "import zabbix database"
 
 - ansible.builtin.stat:
