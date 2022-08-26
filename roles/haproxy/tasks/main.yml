@@ -1,0 +1,19 @@
+---
+# tasks file for haproxy
+- ansible.builtin.apt_repository:
+    repo: ppa:vbernat/haproxy-2.6
+
+- ansible.builtin.apt:
+    name: haproxy
+
+- ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: "restart haproxy"
+
+- ansible.builtin.copy:
+    dest: /home/vagrant/httpserver
+    src: httpserver
+    mode: 0755
+    owner: vagrant
+    group: vagrant

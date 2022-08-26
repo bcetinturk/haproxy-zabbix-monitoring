@@ -1,0 +1,5 @@
+- hosts: haproxy-box
+  become: true
+  tasks:
+    - ansible.builtin.include_role:
+        name: haproxy
